@@ -4,7 +4,9 @@ import { z } from 'zod';
 const schemaValidation =
   (schema: z.AnyZodObject | z.ZodOptional<z.AnyZodObject>) => async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await schema.parseAsync(req);
+      const valid = await schema.parseAsync(req);
+      res.locals.valid = valid;
+
       next();
     } catch (error) {
       let err = error;

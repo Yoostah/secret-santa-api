@@ -1,13 +1,14 @@
 import express from 'express';
 
-import userRoutes from './routes/user';
+import userRoutes from './routes/users';
+import groupRoutes from './routes/groups';
 
 const server = express();
 const PORT = process.env.SERVER_PORT || 5000;
 
 server.use(express.json());
 
-server.use('/api', [userRoutes]);
+server.use('/api', [userRoutes, groupRoutes]);
 
 const startServer = (): void => {
   try {

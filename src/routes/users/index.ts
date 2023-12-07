@@ -1,21 +1,23 @@
 import { Router, Request, Response } from 'express';
-import { User, UserStatus } from '../models/user';
+import { User, UserStatus } from '../../models/user';
 import crypto from 'crypto';
-import validateSchema from '../middlewares/schemaValidation';
-import { createUserSchema, updateUserSchema } from './users/schema';
+import schemaValidation from '../../middlewares/schemaValidation';
+import { createUserSchema, updateUserSchema } from './_schema';
 
 const router = Router();
 
 let users: User[] = [];
 
-router.post('/users', validateSchema(createUserSchema), (req: Request, res: Response) => {
+router.post('/users', schemaValidation(createUserSchema), (req: Request, res: Response) => {
   const uuid = crypto.randomBytes(16).toString('hex');
+
+  const data = res.locals.valid;
 
   const user: User = {
     id: uuid,
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password,
+    name: data.body.name,
+    email: data.body.email,
+    password: data.body.password,
     status: UserStatus.ACTIVE,
   };
 
@@ -38,13 +40,15 @@ router.get('/users/:id', (req: Request, res: Response) => {
   }
 });
 
-router.put('/users/:id', validateSchema(updateUserSchema), (req: Request, res: Response) => {
+router.put('/users/:id', schemaValidation(updateUserSchema), (req: Request, res: Response) => {
   const userIndex = users.findIndex((user) => user.id === req.params.id);
 
   if (userIndex >= 0) {
+    const data = res.locals.valid;
+
     users[userIndex] = {
       ...users[userIndex],
-      ...req.body,
+      ...data.body,
     };
 
     res.status(200).json(users[userIndex]);
